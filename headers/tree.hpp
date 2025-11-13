@@ -7,33 +7,44 @@
 
 namespace rmGUI
 {
-    struct alignas(16) NodeProperties
+    struct alignas(16) GraphicNodeProperties // stores GPU side properties of a Node
     {
-        float4 color;
-        float2 pos, size;
-        float height;
+        friend class GUITree;
+        float4 color = {0.0f, 0.0f, 0.0f, 1.0f};
+    private:
+        float2 pos = {0.0f, 0.0f}, size = {0.0f, 0.0f};
+    public:
+        float height = 0.0f;
     };
-    template<typename T = NodeProperties>
+    struct NodeProperties // stores CPU side properties of a Node
+    {
+        float2 absPos = {0.0f, 0.0f}, absSize = {0.0f, 0.0f};
+        float2 relPos = {0.0f, 0.0f}, relSize = {0.0f, 0.0f};
+    };
     class GUITree
     {
     public:
-        void RefreshIndexBufferData();
+        void PrepareRenderData();
     private:
         class Node;
-        uint32_t CreateBufferData(Node* node, auto&&... args);
+        uint32_t CreateBufferData(Node* node);
         void DeleteBufferData(Node* node);
-        uint32_t RefreshIndexBufferDataIter(Node* node, uint32_t i);
+        uint32_t PrepareRenderDataIter(Node* node, uint32_t i);
     private:
         class Node
         {
-            friend class GUITree<T>;
+            friend class GUITree;
+        private:
             GUITree &tree;
             Node* parent;
             uint32_t pIndex; // pIndex - index in parent
             uint32_t size = 1;
             std::vector<Node*> children;
 
-            uint32_t bIndex; // bIndex - index in nodeBufferData
+            uint32_t gIndex; // gIndex - index to node's GraphicNodeProperties in nodeBufferData
+        public:
+            NodeProperties data; // NodeProperties of a node
+        private:
             void UpdateSize()
             {
                 size = 1;
@@ -60,17 +71,17 @@ namespace rmGUI
                     parent->UpdateSize();
             }
         public:
-            Node(Node* parent_, auto&&... dataCtrArgs) :
+            Node(Node* parent_) :
                 tree(parent_->tree),
                 parent(parent_),
-                bIndex(tree.CreateBufferData(this, dataCtrArgs...))
+                gIndex(tree.CreateBufferData(this))
             {
                 parent->AttachChild(this);
             }
-            Node(GUITree<T>& tree_, auto&&... dataCtrArgs) :
+            Node(GUITree& tree_) :
                 tree(tree_),
                 parent(nullptr),
-                bIndex(tree.CreateBufferData(this, dataCtrArgs...))
+                gIndex(tree.CreateBufferData(this))
             {
 
             }
@@ -84,25 +95,13 @@ namespace rmGUI
                     delete children.back();
                 }
             }
-            T& data()
+            GraphicNodeProperties& gData() // GraphicNodeProperties of a node
             {
-                return tree.nodeBufferData[bIndex];
+                return tree.nodeBufferData[gIndex];
             }
-            void SetPosPixels(float2 pos)
+            const GraphicNodeProperties& gData() const
             {
-                data().pos = pos;
-            }
-            void SetPosRelative(float2 pos)
-            {
-                data().pos = parent->data().size * pos;
-            }
-            void SetSizePixels(float2 size)
-            {
-                data().size = size;
-            }
-            void SetSizeRelative(float2 size)
-            {
-                data().size = parent->data().size * size;
+                return tree.nodeBufferData[gIndex];
             }
             Node* CreateChild(auto&&... dataCtrArgs)
             {
@@ -110,7 +109,7 @@ namespace rmGUI
             }
         };
         
-        std::vector<T> nodeBufferData; // properties of each GUI node
+        std::vector<GraphicNodeProperties> nodeBufferData; // properties of each GUI node
         std::vector<Node*> nodeDataOwners; // i-th entry symbolizes owner of i-th entry in nodeBufferData
         std::vector<GLuint> indexBufferData; // indices of each GUI node properties in draw order
         Node root{*this};
@@ -119,7 +118,7 @@ namespace rmGUI
         {
             return &root;
         }
-        const std::vector<T>& GetNodeBufferData() const
+        const std::vector<GraphicNodeProperties>& GetNodeBufferData() const
         {
             return nodeBufferData;
         }
@@ -128,37 +127,40 @@ namespace rmGUI
             return indexBufferData;
         }
     };
-    template<typename T>
-    uint32_t GUITree<T>::CreateBufferData(Node* node, auto&&... args) // returns index of created buffer data
+    uint32_t GUITree::CreateBufferData(Node* node) // returns index of created buffer data
     {
-        nodeBufferData.emplace_back(args...);
+        nodeBufferData.emplace_back();
         nodeDataOwners.push_back(node);
         return nodeBufferData.size() - 1;
     }
-    template<typename T>
-    void GUITree<T>::DeleteBufferData(Node* node)
+    void GUITree::DeleteBufferData(Node* node)
     {
-        if(node->bIndex != nodeBufferData.size()-1)
+        if(node->gIndex != nodeBufferData.size()-1)
         {
-            nodeDataOwners.back()->bIndex = node->bIndex;
-            std::swap(nodeBufferData[node->bIndex], nodeBufferData.back());
-            std::swap(nodeDataOwners[node->bIndex], nodeDataOwners.back());
+            nodeDataOwners.back()->gIndex = node->gIndex;
+            std::swap(nodeBufferData[node->gIndex], nodeBufferData.back());
+            std::swap(nodeDataOwners[node->gIndex], nodeDataOwners.back());
         }
         nodeBufferData.pop_back();
         nodeDataOwners.pop_back();
     }
-    template<typename T>
-    void GUITree<T>::RefreshIndexBufferData()
+    void GUITree::PrepareRenderData()
     {
+        root.gData().pos = root.data.absPos;
+        root.gData().size = root.data.absSize;
         indexBufferData.resize(root.size);
-        RefreshIndexBufferDataIter(&root, 0);
+        uint32_t i = 0;
+        indexBufferData[i++] = root.gIndex;
+        for(Node* child : root.children)
+            i = PrepareRenderDataIter(child, i);
     }
-    template<typename T>
-    uint32_t GUITree<T>::RefreshIndexBufferDataIter(Node* node, uint32_t i)
+    uint32_t GUITree::PrepareRenderDataIter(Node* node, uint32_t i)
     {
-        indexBufferData[i++] = node->bIndex;
+        node->gData().pos = node->data.absPos + node->data.relPos * node->parent->gData().size + node->parent->gData().pos;
+        node->gData().size = node->data.absSize + node->data.relSize * node->parent->gData().size;
+        indexBufferData[i++] = node->gIndex;
         for(Node* child : node->children)
-            i = RefreshIndexBufferDataIter(child, i);
+            i = PrepareRenderDataIter(child, i);
         return i;
 
     }

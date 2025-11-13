@@ -59,21 +59,34 @@ int main()
     guiInstance.Init();
 
     auto root = tree.GetRoot();
-    root->data().color = {1.f, 1.f, 1.f, 1.f};
-    root->data().pos = {0.f, 0.f};
-    root->SetSizePixels({1440, 810});
+    root->gData().color = {1.f, 1.f, 1.f, 1.f};
+    root->data.absPos = {0.f, 0.f};
+    root->data.absSize = {1440, 810};
 
     auto child1 = root->CreateChild();
 
-    child1->data().color = {1.f, 0.f, 1.f, 1.f};
-    child1->data().pos = {15, 15};
-    child1->data().size = {150, 100};
+    child1->gData().color = {1.f, 0.f, 1.f, 1.f};
+    child1->data.absPos = {10, 10};
+    child1->data.relPos = {0.0f, 0.0f};
+    child1->data.relSize = {0.25f, 1.0f};
+    child1->data.absSize = {-15, -20};
 
     auto child2 = root->CreateChild();
 
-    child2->data().color = {1.f, 0.f, 1.f, 1.f};
-    child2->data().pos = {180, 15};
-    child2->data().size = {150, 100};
+    child2->gData().color = {1.f, 0.f, 1.f, 1.f};
+    child2->data.relPos = {0.25f, 0.2f};
+    child2->data.absPos = {5, 5};
+    child2->data.absSize = {-15, -15};
+    child2->data.relSize = {0.75f, 0.8f};
+
+    auto child3 = root->CreateChild();
+
+    child3->gData().color = {1.f, 0.f, 1.f, 1.f};
+    child3->data.relPos = {0.25f, 0.0f};
+    child3->data.absPos = {5, 10};
+    child3->data.absSize = {-15, -15};
+    child3->data.relSize = {0.75f, 0.2f};
+
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();

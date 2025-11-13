@@ -6,7 +6,6 @@
 
 namespace rmGUI
 {
-    template<typename T = NodeProperties>
     class Instance
     {
         static constexpr GLuint SSBObinding = 0;
@@ -52,15 +51,15 @@ namespace rmGUI
             if(!shader.GetID())
                 InitShader();
         }
-        void DrawTree(GUITree<T>& tree)
+        void DrawTree(GUITree& tree)
         {
             // set indexBufferData
-            tree.RefreshIndexBufferData();
+            tree.PrepareRenderData();
 
             // set data in buffers
-            const std::vector<T> &nodeBufferData = tree.GetNodeBufferData();
-            const std::vector<GLuint> &indexBufferData = tree.GetIndexBufferData();
-            glNamedBufferData(SSBO, nodeBufferData.size() * sizeof(T), nodeBufferData.data(), GL_DYNAMIC_DRAW);
+            const auto &nodeBufferData = tree.GetNodeBufferData();
+            const auto &indexBufferData = tree.GetIndexBufferData();
+            glNamedBufferData(SSBO, nodeBufferData.size() * sizeof(GraphicNodeProperties), nodeBufferData.data(), GL_DYNAMIC_DRAW);
             glNamedBufferData(VBO, indexBufferData.size() * sizeof(GLuint), indexBufferData.data(), GL_DYNAMIC_DRAW);
 
             // setup draw

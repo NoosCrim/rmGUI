@@ -101,7 +101,11 @@ namespace rmGUI
                 data[i] -= other[i];
             return *this;
         }
-        constexpr inline T operator[](std::size_t i)
+        constexpr inline T& operator[](std::size_t i)
+        {
+            return data[i];
+        }
+        constexpr inline const T& operator[](std::size_t i) const
         {
             return data[i];
         }
