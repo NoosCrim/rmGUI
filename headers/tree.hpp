@@ -8,6 +8,9 @@
 
 namespace rmGUI
 {
+    using NodeCorner = uint32_t;
+    using NodeCornerMask = uint32_t;
+    class Node;
     enum class CornerShape : uint32_t
     {
         SQUARE,
@@ -16,14 +19,6 @@ namespace rmGUI
         NOTCH,
         SCOOP
     };
-    enum NodeCorner : uint32_t // bitmasks for gui node corners in cornerShapePacked
-    {
-        TOP_LEFT = 0xFFu,
-        TOP_RIGHT = 0xFFu << 8,
-        BOTTOM_RIGHT = 0xFFu << 16,
-        BOTTOM_LEFT = 0xFFu << 24
-    };
-
     struct alignas(16) GraphicNodeProperties // stores GPU side properties of a Node
     {
         friend class GUITree;
@@ -31,17 +26,15 @@ namespace rmGUI
     private:
         float2 pos = {0.0f, 0.0f}, size = {0.0f, 0.0f};
     private:
-        float _padding[2];
         uint32_t cornerShapePacked;
     public:
         float height = 0.0f;
-        float2  tlCornerRelSize = {0.0f,0.0f}, tlCornerAbsSize = {0.0f, 0.0f},
-                trCornerRelSize = {0.0f,0.0f}, trCornerAbsSize = {0.0f, 0.0f},
-                brCornerRelSize = {0.0f,0.0f}, brCornerAbsSize = {0.0f, 0.0f},
-                blCornerRelSize = {0.0f,0.0f}, blCornerAbsSize = {0.0f, 0.0f};
+    private:
+        float _padding[2];
+        float2 cornerSize[4];
         
     public:
-        inline void SetCornerShape(NodeCorner cornerMask, CornerShape shape)
+        inline void SetCornerShape(NodeCornerMask cornerMask, CornerShape shape)
         {
             cornerShapePacked = (cornerShapePacked & ~(uint32_t)cornerMask) | 
             ((uint32_t)cornerMask & (
@@ -51,21 +44,41 @@ namespace rmGUI
                 (uint32_t)shape << 24
             ));
         }
-        inline CornerShape GetCornerShape(NodeCorner cornerMask)
-        {
-            uint8_t offset = std::countr_zero((uint32_t)cornerMask);
-            return (CornerShape)((cornerShapePacked & (uint32_t)cornerMask) >> offset);
-        }
+        CornerShape GetCornerShape(NodeCorner corner);
     };
     struct NodeProperties // stores CPU side properties of a Node
     {
         float2 absPos = {0.0f, 0.0f}, absSize = {0.0f, 0.0f};
         float2 relPos = {0.0f, 0.0f}, relSize = {0.0f, 0.0f};
+        float2 absCornerSize[4] = {{0,0},{0,0},{0,0},{0,0}};
+        float2 relCornerSize[4] = {{0,0},{0,0},{0,0},{0,0}};
     };
 
     class GUITree;
     class Node
     {
+    public:
+        enum NodeCorner : uint32_t // bitmasks for gui node corners in cornerShapePacked
+        {
+            TOP_LEFT,
+            TOP_RIGHT,
+            BOTTOM_RIGHT,
+            BOTTOM_LEFT
+        };
+        enum NodeCornerMask : uint32_t
+        {
+            TOP_LEFT_MASK = 0xFFu << (uint32_t)TOP_LEFT * 8,
+            TOP_RIGHT_MASK = 0xFFu << (uint32_t)TOP_RIGHT * 8,
+            BOTTOM_RIGHT_MASK = 0xFFu << (uint32_t)BOTTOM_RIGHT * 8,
+            BOTTOM_LEFT_MASK = 0xFFu << (uint32_t)BOTTOM_LEFT * 8
+        };
+        static constexpr uint32_t nodeCornerMask[4]
+        {
+            TOP_LEFT_MASK,
+            TOP_RIGHT_MASK,
+            BOTTOM_RIGHT_MASK,
+            BOTTOM_LEFT_MASK
+        };
         friend class GUITree;
     private:
         GUITree &tree;

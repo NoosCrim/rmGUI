@@ -15,7 +15,6 @@ in uint i;
 out vec2 fragPos;
 out vec4 fragCol;
 flat out uint GUI_ID;
-flat out vec2 cornerSize[4];
 
 void main()
 {
@@ -25,8 +24,4 @@ void main()
     gl_Position.y = -gl_Position.y;
     
     fragCol = instanceData[GUI_ID].color;
-    cornerSize[0] = instanceData[GUI_ID].tlCornerAbsSize + instanceData[GUI_ID].tlCornerRelSize * instanceData[GUI_ID].size;
-    cornerSize[1] = instanceData[GUI_ID].trCornerAbsSize + instanceData[GUI_ID].trCornerRelSize * instanceData[GUI_ID].size;
-    cornerSize[2] = instanceData[GUI_ID].brCornerAbsSize + instanceData[GUI_ID].brCornerRelSize * instanceData[GUI_ID].size;
-    cornerSize[3] = instanceData[GUI_ID].blCornerAbsSize + instanceData[GUI_ID].blCornerRelSize * instanceData[GUI_ID].size;
 }

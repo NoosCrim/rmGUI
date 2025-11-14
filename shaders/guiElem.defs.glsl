@@ -23,17 +23,10 @@ struct InstanceDataStruct
     vec4 color;
     vec2 pos;
 	vec2 size;
-	vec2 padding;
 	uint cornerShapePacked;
     float height;
-    vec2 tlCornerRelSize; 
-	vec2 tlCornerAbsSize;
-	vec2 trCornerRelSize; 
-	vec2 trCornerAbsSize;
-	vec2 brCornerRelSize; 
-	vec2 brCornerAbsSize;
-	vec2 blCornerRelSize; 
-	vec2 blCornerAbsSize;
+	vec2 padding;
+    vec2 cornerSize[4];
 };
 
 
@@ -43,9 +36,3 @@ layout(std430, binding=0) buffer instanceDataBuffer
 };
 
 layout(location=0) uniform ivec2 windowSize;
-
-uint GetCornerShape(uint I, uint corner)
-{
-    uint offset = corner*8;
-    return (instanceData[I].cornerShapePacked >> offset) & 0xFFu;
-}

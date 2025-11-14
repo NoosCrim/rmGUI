@@ -71,14 +71,14 @@ int main()
     child1->data.relSize = {0.25f, 1.0f};
     child1->data.absSize = {-15, -20};
 
-    child1->gData().tlCornerAbsSize = {50, 50};
-    child1->gData().SetCornerShape(rmGUI::TOP_LEFT, rmGUI::CornerShape::ROUND);
+    child1->data.absCornerSize[rmGUI::Node::TOP_LEFT] = {50, 50};
+    child1->gData().SetCornerShape(rmGUI::Node::TOP_LEFT_MASK, rmGUI::CornerShape::ROUND);
 
-    child1->gData().blCornerAbsSize = {50, 50};
-    child1->gData().SetCornerShape(rmGUI::BOTTOM_LEFT, rmGUI::CornerShape::ROUND);
+    child1->data.absCornerSize[rmGUI::Node::BOTTOM_LEFT] = {50, 50};
+    child1->gData().SetCornerShape(rmGUI::Node::BOTTOM_LEFT_MASK, rmGUI::CornerShape::ROUND);
 
-    child1->gData().brCornerAbsSize = {50, 50};
-    child1->gData().SetCornerShape(rmGUI::BOTTOM_RIGHT, rmGUI::CornerShape::NOTCH);
+    child1->data.absCornerSize[rmGUI::Node::BOTTOM_RIGHT] = {50, 50};
+    child1->gData().SetCornerShape(rmGUI::Node::BOTTOM_RIGHT_MASK, rmGUI::CornerShape::NOTCH);
 
     auto child2 = root->CreateChild();
 
@@ -88,17 +88,17 @@ int main()
     child2->data.absSize = {-15, -15};
     child2->data.relSize = {0.75f, 0.8f};
 
-    child2->gData().brCornerAbsSize = {50, 50};
-    child2->gData().SetCornerShape(rmGUI::BOTTOM_RIGHT, rmGUI::CornerShape::ROUND);
+    child2->data.absCornerSize[rmGUI::Node::BOTTOM_RIGHT] = {50, 50};
+    child2->gData().SetCornerShape(rmGUI::Node::BOTTOM_RIGHT_MASK, rmGUI::CornerShape::ROUND);
 
-    child2->gData().tlCornerAbsSize = {50, 50};
-    child2->gData().SetCornerShape(rmGUI::TOP_LEFT, rmGUI::CornerShape::SCOOP);
+    child2->data.absCornerSize[rmGUI::Node::TOP_LEFT] = {50, 50};
+    child2->gData().SetCornerShape(rmGUI::Node::TOP_LEFT_MASK, rmGUI::CornerShape::SCOOP);
     
-    child2->gData().trCornerAbsSize = {50, 50};
-    child2->gData().SetCornerShape(rmGUI::TOP_RIGHT, rmGUI::CornerShape::BEVEL);
+    child2->data.absCornerSize[rmGUI::Node::TOP_RIGHT] = {200, 50};
+    child2->gData().SetCornerShape(rmGUI::Node::TOP_RIGHT_MASK, rmGUI::CornerShape::BEVEL);
 
-    child2->gData().blCornerAbsSize = {50, 50};
-    child2->gData().SetCornerShape(rmGUI::BOTTOM_LEFT, rmGUI::CornerShape::NOTCH);
+    child2->data.absCornerSize[rmGUI::Node::BOTTOM_LEFT] = {50, 50};
+    child2->gData().SetCornerShape(rmGUI::Node::BOTTOM_LEFT_MASK, rmGUI::CornerShape::NOTCH);
 
     auto child3 = root->CreateChild();
 
@@ -108,15 +108,25 @@ int main()
     child3->data.absSize = {-15, -15};
     child3->data.relSize = {0.75f, 0.2f};
 
-    child3->gData().trCornerAbsSize = {50, 50};
-    child3->gData().SetCornerShape(rmGUI::TOP_RIGHT, rmGUI::CornerShape::ROUND);
+    child3->data.absCornerSize[rmGUI::Node::TOP_RIGHT] = {50, 50};
+    child3->gData().SetCornerShape(rmGUI::Node::TOP_RIGHT_MASK, rmGUI::CornerShape::ROUND);
 
-    child3->gData().blCornerAbsSize = {50, 50};
-    child3->gData().SetCornerShape(rmGUI::BOTTOM_LEFT, rmGUI::CornerShape::SCOOP);
+    child3->data.absCornerSize[rmGUI::Node::BOTTOM_LEFT] = {50, 50};
+    child3->gData().SetCornerShape(rmGUI::Node::BOTTOM_LEFT_MASK, rmGUI::CornerShape::SCOOP);
 
-    child3->gData().brCornerAbsSize = {50, 50};
-    child3->gData().SetCornerShape(rmGUI::BOTTOM_RIGHT, rmGUI::CornerShape::BEVEL);
+    child3->data.absCornerSize[rmGUI::Node::BOTTOM_RIGHT] = {200, 50};
+    child3->gData().SetCornerShape(rmGUI::Node::BOTTOM_RIGHT_MASK, rmGUI::CornerShape::BEVEL);
 
+    /*auto child4 = child2->CreateChild();
+    child4->data.absPos = {50,50};
+    child4->data.absSize = {200,200};
+    child4->gData().color = {1,0,0,1};
+
+    auto child5 = child2->CreateChild();
+    child5->data.absPos = {300,50};
+    child5->data.absSize = {200,200};
+    child5->gData().color = {1,0,0,1};*/
+    
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();

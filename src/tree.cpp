@@ -92,12 +92,23 @@ namespace rmGUI
     }
     uint32_t GUITree::PrepareRenderDataIter(Node* node, uint32_t i)
     {
+        // calculate final position and size
         node->gData().pos = node->data.absPos + node->data.relPos * node->parent->gData().size + node->parent->gData().pos;
         node->gData().size = node->data.absSize + node->data.relSize * node->parent->gData().size;
+
+        // calculate final size of corners
+        for(uint8_t i = 0; i < 4; i++)
+            node->gData().cornerSize[i] = node->data.absCornerSize[i] + node->data.relCornerSize[i] * node->gData().size;
+        
         indexBufferData[i++] = node->gIndex;
         for(Node* child : node->children)
             i = PrepareRenderDataIter(child, i);
         return i;
 
+    }
+    CornerShape GraphicNodeProperties::GetCornerShape(NodeCorner corner)
+    {
+        uint8_t offset = (uint32_t)corner * 8;
+        return (CornerShape)((cornerShapePacked & Node::nodeCornerMask[(uint32_t)corner]) >> offset);
     }
 }
