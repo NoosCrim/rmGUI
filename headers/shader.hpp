@@ -162,11 +162,11 @@ rmGUI::ShaderProgram::ShaderProgram(std::initializer_list<Shader> shaders_)
 	glGetProgramiv(ID, GL_INFO_LOG_LENGTH, &logLen);
 	if (!linkStatus)
 	{
-		glDeleteProgram(ID);
-		ID = 0;
 		char log[logLen + 1];
 		glGetProgramInfoLog(ID, logLen + 1, 0, log);
 		std::fprintf(stderr, "Shader Linking Error: %s\n", log);
+		glDeleteProgram(ID);
+		ID = 0;
 	}
 
 	if(ID)

@@ -72,7 +72,7 @@ namespace rmGUI
 
 
             // draw
-            glDrawArraysInstanced(GL_TRIANGLES, 0, 6, indexBufferData.size());
+            glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, indexBufferData.size());
         }
     };
 }

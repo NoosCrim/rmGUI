@@ -1,36 +1,32 @@
 #version 460
 
-vec2 quad[6] = {
+#include "guiElem.defs.glsl"
+
+
+
+vec2 quad[4] = {
     vec2(0, 0),
     vec2(1, 0),
-    vec2(1, 1),
-    vec2(0, 0),
     vec2(1, 1),
     vec2(0, 1)
 };
 
-struct InstanceDataStruct
-{
-    vec4 color;
-    vec2 pos, size;
-    float height;
-};
-
-layout(std430, binding=0) buffer instanceDataBuffer
-{
-    InstanceDataStruct instanceData[];
-};
-layout(location=0) uniform ivec2 windowSize;
 in uint i;
 out vec2 fragPos;
-out vec4 fragColor;
-flat out float fragHeight;
+out vec4 fragCol;
+flat out uint GUI_ID;
+flat out vec2 cornerSize[4];
 
 void main()
 {
-    fragPos = instanceData[i].pos + quad[gl_VertexID] * instanceData[i].size;
+    GUI_ID = i;
+    fragPos = instanceData[GUI_ID].pos + quad[gl_VertexID] * instanceData[GUI_ID].size;
     gl_Position = vec4(2.f*fragPos/windowSize - vec2(1, 1), 0, 1);
     gl_Position.y = -gl_Position.y;
-    fragColor = instanceData[i].color;
-    fragHeight = instanceData[i].height;
+    
+    fragCol = instanceData[GUI_ID].color;
+    cornerSize[0] = instanceData[GUI_ID].tlCornerAbsSize + instanceData[GUI_ID].tlCornerRelSize * instanceData[GUI_ID].size;
+    cornerSize[1] = instanceData[GUI_ID].trCornerAbsSize + instanceData[GUI_ID].trCornerRelSize * instanceData[GUI_ID].size;
+    cornerSize[2] = instanceData[GUI_ID].brCornerAbsSize + instanceData[GUI_ID].brCornerRelSize * instanceData[GUI_ID].size;
+    cornerSize[3] = instanceData[GUI_ID].blCornerAbsSize + instanceData[GUI_ID].blCornerRelSize * instanceData[GUI_ID].size;
 }
